@@ -845,12 +845,12 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zadd(String key, double score, String member) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zadd(key, score, member).get();
 	}
 
 	@Override
 	public Long zadd(String key, Map<String, Double> scoreMembers) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zadd(key, scoreMembers).get();
 	}
 
 	@Override
@@ -870,7 +870,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zrank(String key, String member) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zrank(key, member).get();
 	}
 
 	@Override
@@ -940,7 +940,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zcount(String key, double min, double max) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zcount(key, min, max).get();
 	}
 
 	@Override
@@ -950,7 +950,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Set<String> zrangeByScore(String key, double min, double max) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zrangeByScore(key, min, max).get();
 	}
 
 	@Override
@@ -1035,7 +1035,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zremrangeByScore(String key, double start, double end) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zremrangeByScore(key, start, end).get();
 	}
 
 	@Override
@@ -1555,7 +1555,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zadd(byte[] key, double score, byte[] member) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zadd(key, score, member).get();
 	}
 
 	@Override
@@ -1580,7 +1580,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long zrank(byte[] key, byte[] member) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.zrank(key, member).get();
 	}
 
 	@Override

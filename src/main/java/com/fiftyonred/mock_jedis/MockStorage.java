@@ -20,6 +20,7 @@ public class MockStorage {
 	private final List<Map<DataContainer, Map<DataContainer, DataContainer>>> allHashStorage;
 	private final List<Map<DataContainer, List<DataContainer>>> allListStorage;
 	private final List<Map<DataContainer, Set<DataContainer>>> allSetStorage;
+	private final List<Map<DataContainer, SortedSet<DataContainer>>> allSortedSetStorage;
 
 	private int currentDB;
 	private Map<DataContainer, KeyInformation> keys;
@@ -27,6 +28,7 @@ public class MockStorage {
 	private Map<DataContainer, Map<DataContainer, DataContainer>> hashStorage;
 	private Map<DataContainer, List<DataContainer>> listStorage;
 	private Map<DataContainer, Set<DataContainer>> setStorage;
+	private Map<DataContainer, SortedSet<DataContainer>> sortedSetStorage;
 
 	public MockStorage() {
 		allKeys = new ArrayList<Map<DataContainer, KeyInformation>>(NUM_DBS);
@@ -34,12 +36,14 @@ public class MockStorage {
 		allHashStorage = new ArrayList<Map<DataContainer, Map<DataContainer, DataContainer>>>(NUM_DBS);
 		allListStorage = new ArrayList<Map<DataContainer, List<DataContainer>>>(NUM_DBS);
 		allSetStorage = new ArrayList<Map<DataContainer, Set<DataContainer>>>(NUM_DBS);
+		allSortedSetStorage = new ArrayList<Map<DataContainer, SortedSet<DataContainer>>>(NUM_DBS);
 		for (int i = 0; i < NUM_DBS; ++i) {
 			allKeys.add(new HashMap<DataContainer, KeyInformation>());
 			allStorage.add(new HashMap<DataContainer, DataContainer>());
 			allHashStorage.add(new HashMap<DataContainer, Map<DataContainer, DataContainer>>());
 			allListStorage.add(new HashMap<DataContainer, List<DataContainer>>());
 			allSetStorage.add(new HashMap<DataContainer, Set<DataContainer>>());
+			allSortedSetStorage.add(new HashMap<DataContainer, SortedSet<DataContainer>>());
 		}
 		select(0);
 	}
@@ -191,6 +195,7 @@ public class MockStorage {
 		hashStorage = allHashStorage.get(dbIndex);
 		listStorage = allListStorage.get(dbIndex);
 		setStorage = allSetStorage.get(dbIndex);
+		sortedSetStorage = allSortedSetStorage.get(dbIndex);
 	}
 
 	public synchronized boolean pexpireAt(final DataContainer key, final long millisecondsTimestamp) {
@@ -350,7 +355,8 @@ public class MockStorage {
 					result.addAll(setStorage.get(key));
 					break;
 				case SORTED_SET:
-					throw new RuntimeException("Not implemented");
+					result.addAll(sortedSetStorage.get(key));
+					break;
 				default:
 					throw new JedisDataException("WRONGTYPE Operation against a key holding the wrong kind of value");
 			}
@@ -424,6 +430,9 @@ public class MockStorage {
 				break;
 			case SET:
 				setStorage.remove(key);
+				break;
+			case SORTED_SET:
+				sortedSetStorage.remove(key);
 				break;
 			case STRING:
 			default:
@@ -703,6 +712,35 @@ public class MockStorage {
 		return setStorage.get(key);
 	}
 
+	private Comparator<DataContainer> rankComparator = new Comparator<DataContainer>() {
+        @Override
+        public int compare(DataContainer o1, DataContainer o2) {
+            return o1.getScore().compareTo(o2.getScore());
+        }
+    };
+
+	protected SortedSet<DataContainer> getSortedSetFromStorage(final DataContainer key, final boolean createIfNotExist) {
+		final KeyInformation info = keys.get(key);
+		if (info == null) {
+			if (createIfNotExist) {
+				createOrUpdateKey(key, KeyType.SORTED_SET, false);
+				final SortedSet<DataContainer> result = new TreeSet<DataContainer>(rankComparator);
+				sortedSetStorage.put(key, result);
+				return result;
+			}
+			return null; // no such key exists
+		}
+		if (info.getType() != KeyType.SORTED_SET) {
+			throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
+		}
+		if (info.isTTLSetAndKeyExpired()) {
+			sortedSetStorage.remove(key);
+			keys.remove(key);
+			return null;
+		}
+		return sortedSetStorage.get(key);
+	}
+
 	public synchronized long sadd(final DataContainer key, final DataContainer... members) {
 		final Set<DataContainer> set = getSetFromStorage(key, true);
 
@@ -846,5 +884,68 @@ public class MockStorage {
 		dst.addAll(inter);
 		return inter.size();
 	}
+
+	public synchronized long zadd(final DataContainer key, final DataContainer... members) {
+		final SortedSet<DataContainer> set = getSortedSetFromStorage(key, true);
+
+		long added = 0L;
+		for (final DataContainer s : members) {
+			if (set.add(s)) {
+				added++;
+			}
+		}
+
+		return added;
+	}
+
+	public synchronized Long zrank(final DataContainer key, DataContainer member) {
+        final SortedSet<DataContainer> set = getSortedSetFromStorage(key, false);
+
+        if (set == null) {
+            return null;
+        }
+
+        long i = 0;
+
+        for (DataContainer m : set) {
+            if (m.equals(member)) {
+                return i;
+            }
+
+            i++;
+        }
+
+        return null;
+    }
+
+	public synchronized List<DataContainer> zFilteredMembers(final DataContainer key, Double min, Double max) {
+        final SortedSet<DataContainer> set = getSortedSetFromStorage(key, false);
+        final List<DataContainer> results = new ArrayList<DataContainer>();
+
+        if (set == null) {
+            return results;
+        }
+
+        for (DataContainer member : set) {
+            if (member.getScore() >= min && member.getScore() <= max) {
+                results.add(member);
+            }
+        }
+
+        return results;
+    }
+
+    public synchronized long zrem(final DataContainer key, final DataContainer... members) {
+        final SortedSet<DataContainer> set = getSortedSetFromStorage(key, true);
+
+        long removed = 0L;
+        for (final DataContainer s : members) {
+            if (set.remove(s)) {
+                removed++;
+            }
+        }
+
+        return removed;
+    }
 }
 

@@ -20,28 +20,39 @@ public class DataContainer implements Comparable<DataContainer> {
 	private final Source source;
 	private final int hash;
 
-	private DataContainer(byte[] bytes, String string, Source source) {
+	private final Double score;
+
+	private DataContainer(byte[] bytes, String string, Source source, Double score) {
 		this.bytes = bytes;
 		this.string = string;
 		this.source = source;
 		this.hash = calculateHash(bytes, string, source);
+		this.score = score;
 	}
 
 	public static DataContainer from(byte[] bytes) {
+		return from(bytes, null);
+	}
+
+	public static DataContainer from(byte[] bytes, Double score) {
 		if (bytes == null) {
 			return null;
 		}
 		byte[] copy = Arrays.copyOf(bytes, bytes.length);
 		String str = new String(copy, Charset.defaultCharset());
-		return new DataContainer(copy, str, Source.BYTES);
+		return new DataContainer(copy, str, Source.BYTES, score);
 	}
 
 	public static DataContainer from(final String str) {
+		return from(str, null);
+	}
+
+	public static DataContainer from(final String str, Double score) {
 		if (str == null) {
 			return null;
 		}
 		byte[] bytes = str.getBytes(CHARSET);
-		return new DataContainer(bytes, str, Source.STRING);
+		return new DataContainer(bytes, str, Source.STRING, score);
 	}
 
 	public static DataContainer[] from(final String[] strings) {
@@ -120,6 +131,10 @@ public class DataContainer implements Comparable<DataContainer> {
 
 	public Source getSource() {
 		return source;
+	}
+
+	public Double getScore() {
+		return score;
 	}
 
 	public DataContainer append(DataContainer container) {

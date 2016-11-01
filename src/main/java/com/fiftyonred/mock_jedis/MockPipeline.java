@@ -1201,5 +1201,79 @@ public class MockPipeline extends Pipeline {
 		response.set((long) mockStorage.sunionstore(DataContainer.from(dstkey), DataContainer.from(keys)));
 		return response;
 	}
+
+	@Override
+	public Response<Long> zadd(byte[] key, double score, byte[] member) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(mockStorage.zadd(DataContainer.from(key), DataContainer.from(member, score)));
+		return response;
+	}
+
+	@Override
+	public Response<Long> zadd(String key, double score, String member) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(mockStorage.zadd(DataContainer.from(key), DataContainer.from(member, score)));
+		return response;
+	}
+
+	@Override
+	public Response<Long> zadd(String key, Map<String, Double> scoreMembers) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+
+		List<DataContainer> members = new ArrayList<DataContainer>();
+
+		for (Map.Entry<String, Double> member : scoreMembers.entrySet()) {
+			members.add(DataContainer.from(member.getKey(), member.getValue()));
+		}
+
+		response.set(mockStorage.zadd(DataContainer.from(key), members.toArray(new DataContainer[members.size()])));
+		return response;
+	}
+
+	@Override
+	public Response<Long> zcount(String key, double min, double max) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+
+		List<DataContainer> matching = mockStorage.zFilteredMembers(DataContainer.from(key), min, max);
+		response.set((long) matching.size());
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> zrank(String key, String member) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(mockStorage.zrank(DataContainer.from(key), DataContainer.from(member)));
+		return response;
+	}
+
+	@Override
+	public Response<Long> zrank(byte[] key, byte[] member) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(mockStorage.zrank(DataContainer.from(key), DataContainer.from(member)));
+		return response;
+	}
+
+	@Override
+	public Response<Set<String>> zrangeByScore(String key, double min, double max) {
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_ZSET);
+
+		List<DataContainer> matching = mockStorage.zFilteredMembers(DataContainer.from(key), min, max);
+		response.set(DataContainer.toBytes(matching));
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> zremrangeByScore(String key, double start, double end) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+
+		List<DataContainer> matching = mockStorage.zFilteredMembers(DataContainer.from(key), start, end);
+		response.set((long) matching.size());
+
+		mockStorage.zrem(DataContainer.from(key), matching.toArray(new DataContainer[matching.size()]));
+
+		return response;
+	}
 }
 

@@ -76,6 +76,53 @@ public class MockJedisTest {
 	}
 
 	@Test
+	public void testSortedSets() {
+		assertFalse(j.sismember("test", "member 1"));
+
+		assertEquals(1L, (long) j.zadd("test", 1D, "member 1"));
+
+		Map<String, Double> newMembers = new HashMap<String, Double>();
+		newMembers.put("member 2", 5D);
+		newMembers.put("member 3", 2D);
+		assertEquals(2L, (long) j.zadd("test", newMembers));
+
+		// duplicate member 2. should drop
+		assertEquals(0L, (long) j.zadd("test", 5D, "member 2"));
+
+		// TODO update score?
+
+		// should count all
+		assertEquals(3L, (long) j.zcount("test", Double.MIN_VALUE, Double.MAX_VALUE));
+
+		// should only count members 1 & 3
+		assertEquals(2L, (long) j.zcount("test", 0D, 2D));
+
+		// list all sorted members
+		Set<String> results = j.zrangeByScore("test", Double.MIN_VALUE, Double.MAX_VALUE);
+		assertEquals(3, results.size());
+
+		Iterator<String> resultsIter = results.iterator();
+		assertEquals("member 1", resultsIter.next());
+		assertEquals("member 3", resultsIter.next());
+		assertEquals("member 2", resultsIter.next());
+
+		// list rank >= 2
+		results = j.zrangeByScore("test", 2D, Double.MAX_VALUE);
+		assertEquals(2, results.size());
+
+		resultsIter = results.iterator();
+		assertEquals("member 3", resultsIter.next());
+		assertEquals("member 2", resultsIter.next());
+
+		// rank
+		assertEquals(1L, (long) j.zrank("test", "member 3"));
+		assertNull(j.zrank("test", "member 10"));
+
+		assertEquals(2L, (long) j.zremrangeByScore("test", 2D, Double.MAX_VALUE));
+		assertEquals(1L, (long) j.zcount("test", Double.MIN_VALUE, Double.MAX_VALUE));
+	}
+
+	@Test
 	public void testHincrBy() {
 		j.hincrBy("test1", "name", 10);
 		assertEquals("10", j.hget("test1", "name"));
