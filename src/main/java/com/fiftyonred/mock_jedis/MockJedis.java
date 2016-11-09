@@ -825,7 +825,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long lrem(String key, long count, String value) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.lrem(key, count, value).get();
 	}
 
 	@Override

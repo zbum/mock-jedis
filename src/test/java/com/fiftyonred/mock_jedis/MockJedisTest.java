@@ -95,17 +95,31 @@ public class MockJedisTest {
 	public void testList() {
 		assertEquals(Long.valueOf(0), j.llen("test"));
 
-		j.lpush("test", "a");
-		j.lpush("test", "b");
-		j.lpush("test", "c");
+		j.lpush("test", "world");
+		j.lpush("test", "hello");
 
-		assertEquals(Long.valueOf(3), j.llen("test"));
+		assertEquals(Long.valueOf(2), j.llen("test"));
 
-		assertEquals("c", j.lpop("test"));
-		assertEquals("b", j.lpop("test"));
-		assertEquals("a", j.lpop("test"));
+		List<String> lrange = j.lrange("test", 0, -1);
+		assertEquals("hello", lrange.get(0));
+		assertEquals("world", lrange.get(1));
+
+		assertEquals( "hello",j.lpop("test"));
+		assertEquals( "world",j.lpop("test"));
 
 		assertEquals(Long.valueOf(0), j.llen("test"));
+
+		j.lpush("test", "hello");
+		j.lpush("test", "hello");
+		j.lpush("test", "foo");
+		j.lpush("test", "hello");
+		assertEquals( Long.valueOf(2), j.lrem("test", -2, "hello") );
+
+		lrange = j.lrange("test", 0, -1);
+		assertEquals("hello", lrange.get(0));
+		assertEquals("foo", lrange.get(1));
+
+
 	}
 
 	@Test

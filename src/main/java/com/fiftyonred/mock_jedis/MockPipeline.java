@@ -914,6 +914,13 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> rpush(String key, String... string) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) mockStorage.rpush(DataContainer.from(key), DataContainer.from(string)));
+		return response;
+	}
+
+	@Override
 	public Response<String> lpop(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final DataContainer result = mockStorage.lpop(DataContainer.from(key));
@@ -1199,6 +1206,13 @@ public class MockPipeline extends Pipeline {
 	public Response<Long> sunionstore(final byte[] dstkey, final byte[]... keys) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		response.set((long) mockStorage.sunionstore(DataContainer.from(dstkey), DataContainer.from(keys)));
+		return response;
+	}
+
+	@Override
+	public Response<Long> lrem(String key, long count, String value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) mockStorage.lrem(DataContainer.from(key), count, DataContainer.from(value)));
 		return response;
 	}
 }
