@@ -914,6 +914,13 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> rpush(String key, String... string) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) mockStorage.rpush(DataContainer.from(key), DataContainer.from(string)));
+		return response;
+	}
+
+	@Override
 	public Response<String> lpop(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final DataContainer result = mockStorage.lpop(DataContainer.from(key));

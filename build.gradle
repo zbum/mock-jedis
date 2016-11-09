@@ -6,8 +6,8 @@ apply plugin: 'eclipse'
 group = 'com.fiftyonred'
 version = '0.4.0'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -37,47 +37,47 @@ artifacts {
     archives javadocJar
     archives sourcesJar
 }
+//
+//signing {
+//    sign configurations.archives
+//}
 
-signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-
-            pom.project {
-               name 'mock-jedis'
-               packaging 'jar'
-               description 'Mock Jedis is a library for mocking out Jedis clients'
-               url 'https://github.com/50onRed/mock-jedis'
-
-               scm {
-                   url 'scm:git@github.com:50onRed/mock-jedis.git'
-                   connection 'scm:git@github.com:50onRed/mock-jedis.git'
-                   developerConnection 'scm:git@github.com:50onRed/mock-jedis.git'
-               }
-
-               licenses {
-                   license {
-                       name 'MIT'
-                       url 'https://raw.github.com/50onRed/mock-jedis/master/LICENSE'
-                       distribution 'repo'
-                   }
-               }
-
-               developers {
-                   developer {
-                       id 'idyedov'
-                       name 'Ivan Dyedov'
-                   }
-               }
-           }
-        }
-    }
-}
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//              authentication(userName: sonatypeUsername, password: sonatypePassword)
+//            }
+//
+//            pom.project {
+//               name 'mock-jedis'
+//               packaging 'jar'
+//               description 'Mock Jedis is a library for mocking out Jedis clients'
+//               url 'https://github.com/50onRed/mock-jedis'
+//
+//               scm {
+//                   url 'scm:git@github.com:50onRed/mock-jedis.git'
+//                   connection 'scm:git@github.com:50onRed/mock-jedis.git'
+//                   developerConnection 'scm:git@github.com:50onRed/mock-jedis.git'
+//               }
+//
+//               licenses {
+//                   license {
+//                       name 'MIT'
+//                       url 'https://raw.github.com/50onRed/mock-jedis/master/LICENSE'
+//                       distribution 'repo'
+//                   }
+//               }
+//
+//               developers {
+//                   developer {
+//                       id 'idyedov'
+//                       name 'Ivan Dyedov'
+//                   }
+//               }
+//           }
+//        }
+//    }
+//}
