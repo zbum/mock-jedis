@@ -109,6 +109,16 @@ public class MockJedisTest {
 
 		assertEquals(Long.valueOf(0), j.llen("test"));
 
+		j.lpush("test", "hello");
+		j.lpush("test", "hello");
+		j.lpush("test", "foo");
+		j.lpush("test", "hello");
+		assertEquals( Long.valueOf(2), j.lrem("test", -2, "hello") );
+
+		lrange = j.lrange("test", 0, -1);
+		assertEquals("hello", lrange.get(0));
+		assertEquals("foo", lrange.get(1));
+
 
 	}
 

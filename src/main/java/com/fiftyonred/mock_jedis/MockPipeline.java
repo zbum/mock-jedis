@@ -1208,5 +1208,12 @@ public class MockPipeline extends Pipeline {
 		response.set((long) mockStorage.sunionstore(DataContainer.from(dstkey), DataContainer.from(keys)));
 		return response;
 	}
+
+	@Override
+	public Response<Long> lrem(String key, long count, String value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) mockStorage.lrem(DataContainer.from(key), count, DataContainer.from(value)));
+		return response;
+	}
 }
 
