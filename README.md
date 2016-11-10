@@ -35,7 +35,7 @@ Sample maven dependency definition:
 <dependency>
     <groupId>com.fiftyonred</groupId>
     <artifactId>mock-jedis</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <type>jar</type>
     <scope>test</scope>
 </dependency>
