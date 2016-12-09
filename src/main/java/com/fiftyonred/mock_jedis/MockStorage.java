@@ -581,6 +581,10 @@ public class MockStorage {
 
         final List<DataContainer> result = new ArrayList<DataContainer>();
 
+        if (full == null) {
+            return result;
+        }
+
         if (start < 0L) {
             start = Math.max(full.size() + start, 0L);
         }
