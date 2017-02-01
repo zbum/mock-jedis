@@ -35,7 +35,7 @@ Sample maven dependency definition:
 <dependency>
     <groupId>com.fiftyonred</groupId>
     <artifactId>mock-jedis</artifactId>
-    <version>0.4.1</version>
+    <version>0.4.3</version>
     <type>jar</type>
     <scope>test</scope>
 </dependency>
@@ -58,6 +58,7 @@ Currently the following commands are supported by mock-jedis
  - CONNECTIONS: ECHO PING SELECT QUIT
  - SERVER: DBSIZE FLUSHALL FLUSHDB
  - PIPELINES
+ - TRANSACTION : HSET, EXEC(return null)
 
 ## Unsupported Things
  - All commands not listed above
